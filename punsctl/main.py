@@ -40,8 +40,7 @@ MSG_LIST_NS = "{name} ({path}) {active}\n"
 @sgetopt(args=sys.argv[1:], optstring="hlp:c:r:a:d")
 def main(opts: List[Tuple], argv: List[str]) -> None:
     if len(opts) == 0:
-        sys.stdout.write(USAGE)
-        sys.exit(1)
+        sys.exit(USAGE)
 
     opt_root_path = None
     opt_list = False
@@ -73,8 +72,7 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
             opt_deactivate = True
 
         else:
-            sys.stdout.write(USAGE)
-            sys.exit(1)
+            sys.exit(USAGE)
 
     if opt_root_path is not None:
         try:
