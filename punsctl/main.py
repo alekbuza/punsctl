@@ -17,11 +17,9 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
-from libpunsctl.namespace import Namespace, NamespaceException
-from libpunsctl.rootspace import RootSpace, RootSpaceException
-from libpunsctl.sgetopt import sgetopt
-
-__version__ = "0.0.1"
+from punsctl.namespace import Namespace, NamespaceException
+from punsctl.rootspace import RootSpace, RootSpaceException
+from punsctl.sgetopt import sgetopt
 
 USAGE = """
 punsctl <options>
@@ -141,7 +139,3 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
 
     else:
         usage()
-
-
-if __name__ == "__main__":
-    main()

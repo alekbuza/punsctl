@@ -2,7 +2,24 @@
 name = "punsctl"
 version = "0.0.1"
 description = "POSIX User's Namespace Control"
-authors = ["Aleksandar Buza <git@aleksandarbuza.com>"]
+authors = ["Aleksandar Buza <me@aleksandarbuza.com>"]
+license = "ISC"
+readme = "README.md"
+homepage = "https://github.com/alekbuza/punsctl"
+repository = "https://github.com/alekbuza/punsctl"
+keywords = ["posix", "user", "namespace"]
+classifiers = [
+    "Environment :: Console",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux"
+]
+include = [
+    "LICENSE",
+]
+
+[tool.poetry.scripts]
+punsctl = "punsctl.main:main"
 
 [tool.poetry.dependencies]
 python = "^3.8"

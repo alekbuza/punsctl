@@ -17,7 +17,7 @@ import os
 from pathlib import Path
 from typing import List, Optional
 
-from .rootspace import RootSpace
+from punsctl.rootspace import RootSpace
 
 __all__ = ["Namespace", "NamespaceException"]
 
