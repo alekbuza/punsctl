@@ -81,8 +81,7 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
             root_space = RootSpace(path=Path(opt_root_path))
 
         except RootSpaceException as exc:
-            sys.stdout.write(f"error: {exc.message}\n")
-            sys.exit(1)
+            sys.exit(f"error: {exc.message}\n")
 
     else:
         root_space = RootSpace(path=Path(f"{Path.home()}/.ns"))
@@ -99,19 +98,15 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
                 )
             )
 
-        sys.exit(0)
-
     elif opt_create is not None:
         ns = Namespace(root_space=root_space, name=opt_create)
 
         try:
             ns.create()
             sys.stdout.write(f"info: {opt_create} created\n")
-            sys.exit(0)
 
         except NamespaceException as exc:
-            sys.stdout.write(f"error: {exc.message}\n")
-            sys.exit(1)
+            sys.exit(f"error: {exc.message}\n")
 
     elif opt_remove is not None:
         ns = Namespace(root_space=root_space, name=opt_remove)
@@ -119,11 +114,9 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
         try:
             ns.remove()
             sys.stdout.write(f"info: {opt_create} removed\n")
-            sys.exit(0)
 
         except NamespaceException as exc:
-            sys.stdout.write(f"error: {exc.message}\n")
-            sys.exit(1)
+            sys.exit(f"error: {exc.message}\n")
 
     elif opt_activate is not None:
         ns = Namespace(root_space=root_space, name=opt_activate)
@@ -131,11 +124,9 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
         try:
             ns.activate()
             sys.stdout.write(f"info: {opt_activate} activated\n")
-            sys.exit(0)
 
         except NamespaceException as exc:
-            sys.stdout.write(f"error: {exc.message}\n")
-            sys.exit(1)
+            sys.exit(f"error: {exc.message}\n")
 
     elif opt_deactivate:
         for namespace in root_space.get_namespace_paths():
@@ -143,8 +134,6 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
             ns.deactivate()
 
         sys.stdout.write("info: namespaces are deactivated successfully\n")
-        sys.exit(0)
 
     else:
         sys.stdout.write(USAGE)
-        sys.exit(1)
