@@ -17,6 +17,8 @@ import os
 from pathlib import Path
 from typing import List, Optional
 
+from punsctl.static import CURRENT_NS_PATH
+
 __all__ = ["RootSpace", "RootSpaceException"]
 
 
@@ -38,11 +40,10 @@ class RootSpace(object):
     def get_path(self) -> Path:
         return self.path
 
-    def get_active_namespace(self) -> Optional[str]:
-        active = Path(f"{self.path}/.active")
-
-        if active.exists() and active.is_symlink():
-            return Path(os.readlink(active)).name
+    @staticmethod
+    def get_active_namespace() -> Optional[str]:
+        if CURRENT_NS_PATH.exists() and CURRENT_NS_PATH.is_symlink():
+            return Path(os.readlink(CURRENT_NS_PATH)).name
 
         return None
 
