@@ -37,7 +37,7 @@ options:
 MSG_LIST_NS = "{name} ({path}) {active}\n"
 
 
-@sgetopt(args=sys.argv[1:], optstring="hplc:r:a:d")
+@sgetopt(args=sys.argv[1:], optstring="hlp:c:r:a:d")
 def main(opts: List[Tuple], argv: List[str]) -> None:
     if len(opts) == 0:
         sys.stdout.write(USAGE)
@@ -101,14 +101,6 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
 
         sys.exit(0)
 
-    elif opt_deactivate:
-        for namespace in root_space.get_namespace_paths():
-            ns = Namespace(root_space=root_space, name=namespace.name)
-            ns.deactivate()
-
-        sys.stdout.write("info: namespaces are deactivated successfully\n")
-        sys.exit(0)
-
     elif opt_create is not None:
         ns = Namespace(root_space=root_space, name=opt_create)
 
@@ -144,6 +136,14 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
         except NamespaceException as exc:
             sys.stdout.write(f"error: {exc.message}\n")
             sys.exit(1)
+
+    elif opt_deactivate:
+        for namespace in root_space.get_namespace_paths():
+            ns = Namespace(root_space=root_space, name=namespace.name)
+            ns.deactivate()
+
+        sys.stdout.write("info: namespaces are deactivated successfully\n")
+        sys.exit(0)
 
     else:
         sys.stdout.write(USAGE)
