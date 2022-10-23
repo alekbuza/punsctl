@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright (c) 2022 Aleksandar Buza <me@aleksandarbuza.com>
 #
 # Permission to use, copy, modify, and distribute this software for any
@@ -12,25 +13,13 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-SHELL = /bin/sh
-BASE_PATH = $(shell pwd)
+import os
+import pytest
+from pathlib import Path
 
-.PHONY = help build install
+from punsctl.rootspace import RootSpace
 
-.DEFAULT_GOAL = help
 
-help:
-	@echo "---------------HELP-----------------"
-	@echo "build - Build punsctl locally"
-	@echo "install - Install punsctl inside a Poetry virtual environment"
-	@echo "test - Run all tests"
-	@echo "------------------------------------"
-
-build:
-	poetry build
-
-install:
-	poetry install
-
-test:
-	poetry run pytest
+@pytest.fixture(scope='session', autouse=True)
+def root_space():
+    return RootSpace(path=Path(os.getcwd()))
