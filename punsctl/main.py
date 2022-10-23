@@ -34,17 +34,14 @@ options:
     -d                  Deactivate namespaces
 """
 
-MSG_LIST_NS = "{name} ({path}) {active}"
-
-
-def usage():
-    sys.exit(USAGE)
+MSG_LIST_NS = "{name} ({path}) {active}\n"
 
 
 @sgetopt(args=sys.argv[1:], optstring="hplc:r:a:d")
 def main(opts: List[Tuple], argv: List[str]) -> None:
     if len(opts) == 0:
-        usage()
+        sys.stdout.write(USAGE)
+        sys.exit(1)
 
     opt_root_path = None
     opt_list = False
@@ -55,7 +52,7 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
 
     for opt, arg in opts:
         if opt == "-h":
-            usage()
+            sys.exit(USAGE)
 
         elif opt == "-p":
             opt_root_path = arg
@@ -64,27 +61,28 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
             opt_list = True
 
         elif opt == "-c":
-            opt_create = arg if arg is not None else usage()
+            opt_create = arg if arg is not None else sys.exit(USAGE)
 
         elif opt == "-r":
-            opt_remove = arg if arg is not None else usage()
+            opt_remove = arg if arg is not None else sys.exit(USAGE)
 
         elif opt == "-a":
-            opt_activate = arg if arg is not None else usage()
+            opt_activate = arg if arg is not None else sys.exit(USAGE)
 
         elif opt == "-d":
             opt_deactivate = True
 
         else:
-            usage()
+            sys.stdout.write(USAGE)
+            sys.exit(1)
 
     if opt_root_path is not None:
         try:
             root_space = RootSpace(path=Path(opt_root_path))
 
         except RootSpaceException as exc:
-            print(exc.message)
-            sys.exit()
+            sys.stdout.write(f"error: {exc.message}\n")
+            sys.exit(1)
 
     else:
         root_space = RootSpace(path=Path(f"{Path.home()}/.ns"))
@@ -93,7 +91,7 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
         for namespace in root_space.get_namespace_paths():
             ns = Namespace(root_space=root_space, name=namespace.name)
 
-            print(
+            sys.stdout.write(
                 MSG_LIST_NS.format(
                     name=namespace.name,
                     path=namespace.absolute(),
@@ -101,41 +99,52 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
                 )
             )
 
+        sys.exit(0)
+
     elif opt_deactivate:
         for namespace in root_space.get_namespace_paths():
             ns = Namespace(root_space=root_space, name=namespace.name)
             ns.deactivate()
 
-        print("namespaces are deactivated successfully")
+        sys.stdout.write("info: namespaces are deactivated successfully\n")
+        sys.exit(0)
 
     elif opt_create is not None:
         ns = Namespace(root_space=root_space, name=opt_create)
 
         try:
             ns.create()
-            print(f"{opt_create} created")
+            sys.stdout.write(f"info: {opt_create} created\n")
+            sys.exit(0)
 
         except NamespaceException as exc:
-            print(f"error: {exc.message}")
+            sys.stdout.write(f"error: {exc.message}\n")
+            sys.exit(1)
 
     elif opt_remove is not None:
         ns = Namespace(root_space=root_space, name=opt_remove)
 
         try:
             ns.remove()
+            sys.stdout.write(f"info: {opt_create} removed\n")
+            sys.exit(0)
 
         except NamespaceException as exc:
-            print(f"error: {exc.message}")
+            sys.stdout.write(f"error: {exc.message}\n")
+            sys.exit(1)
 
     elif opt_activate is not None:
         ns = Namespace(root_space=root_space, name=opt_activate)
 
         try:
             ns.activate()
-            print(f"{opt_activate} activated")
+            sys.stdout.write(f"info: {opt_activate} activated\n")
+            sys.exit(0)
 
         except NamespaceException as exc:
-            print(f"error: {exc.message}")
+            sys.stdout.write(f"error: {exc.message}\n")
+            sys.exit(1)
 
     else:
-        usage()
+        sys.stdout.write(USAGE)
+        sys.exit(1)

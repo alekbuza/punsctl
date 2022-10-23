@@ -18,10 +18,9 @@ from pathlib import Path
 from typing import List, Optional
 
 from punsctl.rootspace import RootSpace
+from punsctl.static import CURRENT_NS_PATH, MSG_ANOTHER_NS_ACTIVE
 
 __all__ = ["Namespace", "NamespaceException"]
-
-MSG_ANOTHER_NS_ACTIVE = "{name} namespace are active"
 
 
 class NamespaceException(Exception):
@@ -67,9 +66,10 @@ class Namespace(object):
         return self.__path
 
     def active(self) -> bool:
-        path = Path(f"{self.root_space.path}/.active")
-
-        if path.exists() and Path(os.readlink(path)) == self.__path:
+        if (
+            CURRENT_NS_PATH.exists()
+            and Path(os.readlink(CURRENT_NS_PATH)) == self.__path
+        ):
             return True
 
         return False
@@ -81,13 +81,18 @@ class Namespace(object):
         return self.__path
 
     def __get_sources(self) -> List[Path]:
-        return [source for source in self.__path.iterdir()]
+        sources = []
+
+        for source in self.__path.iterdir():
+            if source.name == CURRENT_NS_PATH.name:
+                continue
+            sources.append(source)
+
+        return sources
 
     def activate(self) -> None:
-        path = Path(f"{self.root_space.path}/.active")
-
-        if path.exists() and path.is_symlink():
-            if Path(os.readlink(path)) == self.__path:
+        if CURRENT_NS_PATH.exists() and CURRENT_NS_PATH.is_symlink():
+            if Path(os.readlink(CURRENT_NS_PATH)) == self.__path:
                 pass
 
             else:
@@ -97,7 +102,7 @@ class Namespace(object):
                     )
                 )
         else:
-            path.symlink_to(self.__path)
+            CURRENT_NS_PATH.symlink_to(self.__path)
 
         for source in self.__get_sources():
             with Path(f"{self.symlink_path}/{source.name}") as target:
@@ -113,11 +118,9 @@ class Namespace(object):
                     target.symlink_to(source)
 
     def deactivate(self) -> None:
-        path = Path(f"{self.root_space.path}/.active")
-
-        if path.exists() and path.is_symlink():
-            if Path(os.readlink(path)) == self.__path:
-                path.unlink()
+        if CURRENT_NS_PATH.exists() and CURRENT_NS_PATH.is_symlink():
+            if Path(os.readlink(CURRENT_NS_PATH)) == self.__path:
+                CURRENT_NS_PATH.unlink()
 
         for source in self.__get_sources():
             with Path(f"{self.symlink_path}/{source.name}") as target:
