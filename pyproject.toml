@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "punsctl"
+version = "0.0.1"
+description = "POSIX User's Namespace Control"
+authors = ["Aleksandar Buza <git@aleksandarbuza.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+black = "^22.10.0"
+flake8 = "^5.0.4"
+isort = "^5.10.1"
+pygount = "^1.4.0"
+bandit = "^1.7.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
