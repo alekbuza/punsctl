@@ -21,9 +21,13 @@ BASE_PATH = $(shell pwd)
 
 help:
 	@echo "---------------HELP-----------------"
-	@echo "build - Build punsctl locally"
-	@echo "install - Install punsctl inside a Poetry virtual environment"
-	@echo "test - Run all tests"
+	@echo "build      - Build punsctl locally"
+	@echo "install    - Install punsctl inside a Poetry virtual environment"
+	@echo "test       - Run all tests"
+	@echo "lint       - Linter"
+	@echo "bump_patch - Bump patch version"
+	@echo "bump_minor - Bump minor version"
+	@echo "bump_major - Bump major version"
 	@echo "------------------------------------"
 
 build:
@@ -34,3 +38,18 @@ install:
 
 test:
 	poetry run pytest
+
+lint:
+	isort . --profile black
+	black .
+	flake8 .
+	bandit .
+
+bump_patch:
+	poetry version patch
+
+bump_minor:
+	poetry version minor
+
+bump_major:
+	poetry version major
