@@ -14,12 +14,13 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import os
-import pytest
 from pathlib import Path
+
+import pytest
 
 from punsctl.rootspace import RootSpace
 
 
-@pytest.fixture(scope='session', autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 def root_space():
     return RootSpace(path=Path(os.getcwd()))
