@@ -23,8 +23,8 @@ options:
     -r                  Root path                 (Default: ~/.ns)
     -s                  Symlink path              (Default: ~/)
     -l                  List namespaces
-    -n <namespace>      Create a new namespace
-    -d <namespace>      Delete existing namespace
+    -n <namespace>      Create namespace
+    -d <namespace>      Delete namespace
     -a <namespace>      Activate namespace
     -x                  Deactivate namespaces
 """

@@ -3,6 +3,9 @@
 # punsctl - POSIX User's Namespace Control
 
 [![codecov](https://codecov.io/github/alekbuza/punsctl/branch/main/graph/badge.svg?token=OMHOSME5ZB)](https://codecov.io/github/alekbuza/punsctl)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+
+
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/punsctl)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/punsctl)
 ![PyPI - Wheel](https://img.shields.io/pypi/wheel/punsctl)
@@ -20,9 +23,18 @@ pip install punsctl
 
 ## Usage
 
-### Create a new namespace
-```sh
-punsctl -c <namespace>
+```txt
+punsctl <options>
+
+options:
+    -h                  Help menu
+    -r                  Root path                 (Default: ~/.ns)
+    -s                  Symlink path              (Default: ~/)
+    -l                  List namespaces
+    -n <namespace>      Create namespace
+    -d <namespace>      Delete namespace
+    -a <namespace>      Activate namespace
+    -x                  Deactivate namespaces
 ```
 
 ### List all namespaces
@@ -30,17 +42,49 @@ punsctl -c <namespace>
 punsctl -l
 ```
 
-### Activate a namespace
+### List all namespaces from the `non-default` root path
+```sh
+punsctl -p <root_path> -l
+```
+
+### Create new namespace
+```sh
+punsctl -n <namespace>
+```
+
+### Create a new namespace in the `non-default` root path
+```sh
+punsctl -p <root_path> -n <namespace>
+```
+
+### Delete namespace
+```sh
+punsctl -d <namespace>
+```
+
+### Delete namespace in `non-default` root path
+```sh
+punsctl -p <root_path> -d <namespace>
+```
+
+### Activate namespace
 ```sh
 punsctl -a <namespace>
 ```
 
-### Deactivate namespaces
+### Activate the namespace from the `non-default` root path
 ```sh
-punsctl -d
+punsctl -p <root_path> -a <namespace>
 ```
 
-### List all namespaces for the non-default root path (`~/.ns`)
+### Activate the namespace from the `non-default` root path and change the symlink path
+
 ```sh
-punsctl -p <root_path> -l
+punsctl -p <root_path> -s <symlink_path> -a <namespace>
 ```
+
+### Deactivate namespaces
+```sh
+punsctl -x
+```
+
