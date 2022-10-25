@@ -13,14 +13,12 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import os
-from pathlib import Path
 
-import pytest
+from pytest import fixture
 
 from punsctl.rootspace import RootSpace
 
 
-@pytest.fixture(scope="session", autouse=True)
-def root_space():
-    return RootSpace(path=Path(os.getcwd()))
+@fixture(scope="function", autouse=True)
+def root_space(tmp_path):
+    return RootSpace(path=tmp_path)

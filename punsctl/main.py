@@ -20,33 +20,19 @@ from typing import List, Tuple
 from punsctl.namespace import Namespace, NamespaceException
 from punsctl.rootspace import RootSpace, RootSpaceException
 from punsctl.sgetopt import sgetopt
-from punsctl.static import DEFAULT_NS_PATH
-
-USAGE = """
-punsctl <options>
-
-options:
-    -h                  Help menu
-    -p                  Root path
-    -l                  List namespaces
-    -c <namespace>      Create namespace
-    -r <namespace>      Remove namespace
-    -a <namespace>      Activate namespace
-    -d                  Deactivate namespaces
-"""
-
-MSG_LIST_NS = "{name} ({path}) {active}\n"
+from punsctl.static import DEFAULT_ROOT_PATH, DEFAULT_SYMLINK_PATH, USAGE
 
 
-@sgetopt(args=sys.argv[1:], optstring="hlp:c:r:a:d")
+@sgetopt(args=sys.argv[1:], optstring="hlxr:s:n:d:a:")
 def main(opts: List[Tuple], argv: List[str]) -> None:
     if len(opts) == 0:
         sys.exit(USAGE)
 
-    opt_root_path = None
     opt_list = False
+    opt_root_path = DEFAULT_ROOT_PATH
+    opt_symlink_path = DEFAULT_SYMLINK_PATH
     opt_create = None
-    opt_remove = None
+    opt_delete = None
     opt_activate = None
     opt_deactivate = False
 
@@ -54,82 +40,86 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
         if opt == "-h":
             sys.exit(USAGE)
 
-        elif opt == "-p":
-            opt_root_path = arg
-
         elif opt == "-l":
             opt_list = True
 
-        elif opt == "-c":
-            opt_create = arg if arg is not None else sys.exit(USAGE)
+        elif opt == "-x":
+            opt_deactivate = True
 
         elif opt == "-r":
-            opt_remove = arg if arg is not None else sys.exit(USAGE)
+            opt_root_path = arg if arg is not None else sys.exit(USAGE)
+
+        elif opt == "-s":
+            opt_symlink_path = arg if arg is not None else sys.exit(USAGE)
+
+        elif opt == "-n":
+            opt_create = arg if arg is not None else sys.exit(USAGE)
+
+        elif opt == "-d":
+            opt_delete = arg if arg is not None else sys.exit(USAGE)
 
         elif opt == "-a":
             opt_activate = arg if arg is not None else sys.exit(USAGE)
 
-        elif opt == "-d":
-            opt_deactivate = True
-
         else:
             sys.exit(USAGE)
 
-    if opt_root_path is not None:
-        try:
-            root_space = RootSpace(path=Path(opt_root_path))
+    try:
+        root_space = RootSpace(
+            path=Path(opt_root_path), symlink_path=Path(opt_symlink_path)
+        )
 
-        except RootSpaceException as exc:
-            sys.exit(f"error: {exc.message}\n")
-
-    else:
-        root_space = RootSpace(path=DEFAULT_NS_PATH)
+    except RootSpaceException as exc:
+        sys.exit(f"root error: {exc.message}")
 
     if opt_list:
-        for namespace in root_space.get_namespace_paths():
-            ns = Namespace(root_space=root_space, name=namespace.name)
-
-            sys.stdout.write(
-                MSG_LIST_NS.format(
+        for namespace in root_space.get_all_ns_paths():
+            try:
+                ns = Namespace(
                     name=namespace.name,
-                    path=namespace.absolute(),
-                    active="active" if ns.active() else "",
+                    root_space=root_space,
                 )
-            )
+
+                sys.stdout.write(
+                    f"{namespace.name} ({namespace.absolute()}) "
+                    f"{'active' if ns.active() else ''}\n"
+                )
+            except NamespaceException as exc:
+                sys.exit(f"namespace error: {exc.message}")
 
     elif opt_create is not None:
-        ns = Namespace(root_space=root_space, name=opt_create)
+        ns = Namespace(name=opt_create, root_space=root_space)
 
         try:
             ns.create()
             sys.stdout.write(f"info: {opt_create} created\n")
 
         except NamespaceException as exc:
-            sys.exit(f"error: {exc.message}\n")
+            sys.exit(f"namespace error: {exc.message}")
 
-    elif opt_remove is not None:
-        ns = Namespace(root_space=root_space, name=opt_remove)
+    elif opt_delete is not None:
+        ns = Namespace(name=opt_delete, root_space=root_space)
 
         try:
             ns.remove()
-            sys.stdout.write(f"info: {opt_create} removed\n")
+            sys.stdout.write(f"info: {opt_delete} removed\n")
 
         except NamespaceException as exc:
-            sys.exit(f"error: {exc.message}\n")
+            sys.exit(f"namespace error: {exc.message}")
 
     elif opt_activate is not None:
-        ns = Namespace(root_space=root_space, name=opt_activate)
+        ns = Namespace(name=opt_activate, root_space=root_space)
 
         try:
             ns.activate()
             sys.stdout.write(f"info: {opt_activate} activated\n")
 
         except NamespaceException as exc:
-            sys.exit(f"error: {exc.message}\n")
+            sys.exit(f"namespace error: {exc.message}")
 
     elif opt_deactivate:
-        for namespace in root_space.get_namespace_paths():
-            ns = Namespace(root_space=root_space, name=namespace.name)
+        for namespace in root_space.get_all_ns_paths():
+            ns = Namespace(name=namespace.name, root_space=root_space)
             ns.deactivate()
 
         sys.stdout.write("info: namespaces are deactivated successfully\n")
