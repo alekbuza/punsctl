@@ -43,7 +43,7 @@ lint:
 	isort . --profile black
 	black .
 	flake8 .
-	bandit .
+	bandit -r punsctl/
 
 bump_patch:
 	poetry version patch

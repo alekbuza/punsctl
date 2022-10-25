@@ -13,11 +13,11 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import os
+from os import R_OK, W_OK, access, readlink
 from pathlib import Path
 from typing import List, Optional
 
-from punsctl.static import CURRENT_NS_PATH
+from punsctl.static import DEFAULT_ROOT_PATH, DEFAULT_SYMLINK_PATH
 
 __all__ = ["RootSpace", "RootSpaceException"]
 
@@ -28,29 +28,51 @@ class RootSpaceException(Exception):
 
 
 class RootSpace(object):
-    def __init__(self, path: Path):
+    def __init__(
+        self,
+        path: Path = Path(DEFAULT_ROOT_PATH),
+        symlink_path: Path = Path(DEFAULT_SYMLINK_PATH),
+    ):
+        # Root path checks
+        if not path.exists():
+            raise RootSpaceException(message=f"path {path} doesn't exists")
+
+        if not path.is_dir():
+            raise RootSpaceException(message=f"path {path} is not a directory")
+
+        if access(path, R_OK) is not True:
+            raise RootSpaceException(message=f"path {path} is not readable")
+
+        # Symlink path checks
+        if not symlink_path.exists():
+            raise RootSpaceException(message=f"path {symlink_path} doesn't exists")
+
+        if not symlink_path.is_dir():
+            raise RootSpaceException(message=f"path {symlink_path} is not a directory")
+
+        if access(symlink_path, W_OK) is not True:
+            raise RootSpaceException(message=f"path {symlink_path} is not writable")
+
         self.path = path
-
-        if not self.path.exists():
-            raise RootSpaceException(message=f"{self.path} doesn't exists")
-
-        if not self.path.is_dir():
-            raise RootSpaceException(message=f"{self.path} is not a directory")
-
-        if os.access(self.path, os.W_OK) is not True:
-            raise RootSpaceException(message=f"{self.path} is not writable")
+        self.symlink_path = symlink_path
+        self.current_ns_path = Path(f"{symlink_path}/.current_ns")
 
     def get_path(self) -> Path:
         return self.path
 
-    @staticmethod
-    def get_active_namespace() -> Optional[str]:
-        if CURRENT_NS_PATH.exists() and CURRENT_NS_PATH.is_symlink():
-            return Path(os.readlink(CURRENT_NS_PATH)).name
+    def get_symlink_path(self) -> Path:
+        return self.symlink_path
+
+    def get_current_ns_path(self) -> Path:
+        return self.current_ns_path
+
+    def get_current_ns_name(self) -> Optional[str]:
+        if self.current_ns_path.exists() and self.current_ns_path.is_symlink():
+            return Path(readlink(self.current_ns_path)).name
 
         return None
 
-    def get_namespace_paths(self) -> List[Path]:
+    def get_all_ns_paths(self) -> List[Path]:
         namespaces = []
 
         for namespace in self.path.iterdir():
