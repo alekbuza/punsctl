@@ -37,6 +37,9 @@ class RootSpace(object):
         if not self.path.is_dir():
             raise RootSpaceException(message=f"{self.path} is not a directory")
 
+        if os.access(self.path, os.W_OK) is not True:
+            raise RootSpaceException(message=f"{self.path} is not writable")
+
     def get_path(self) -> Path:
         return self.path
 
@@ -53,5 +56,7 @@ class RootSpace(object):
         for namespace in self.path.iterdir():
             if namespace.is_dir() and not namespace.is_symlink():
                 namespaces.append(namespace)
+
+        namespaces.sort()
 
         return namespaces
