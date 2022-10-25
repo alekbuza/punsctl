@@ -20,6 +20,7 @@ from typing import List, Tuple
 from punsctl.namespace import Namespace, NamespaceException
 from punsctl.rootspace import RootSpace, RootSpaceException
 from punsctl.sgetopt import sgetopt
+from punsctl.static import DEFAULT_NS_PATH
 
 USAGE = """
 punsctl <options>
@@ -82,7 +83,7 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
             sys.exit(f"error: {exc.message}\n")
 
     else:
-        root_space = RootSpace(path=Path(f"{Path.home()}/.ns"))
+        root_space = RootSpace(path=DEFAULT_NS_PATH)
 
     if opt_list:
         for namespace in root_space.get_namespace_paths():

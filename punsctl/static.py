@@ -15,5 +15,6 @@
 
 from pathlib import Path
 
+DEFAULT_NS_PATH = Path(f"{Path.home()}/.ns")
 CURRENT_NS_PATH = Path(f"{Path.home()}/.current_ns")
 MSG_ANOTHER_NS_ACTIVE = "{name} namespace are active"
