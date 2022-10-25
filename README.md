@@ -12,6 +12,12 @@ That means the user can have multiple "_profiles_" for the same or different too
 (`~/.ssh`, `~/.gitconfig`, `~/.gnupg`, `~/.config`, `~/.config/nvim`, ...).
 The user can create, delete, activate and deactivate namespaces without additional permissions.
 
+## Installation
+
+```sh
+pip install punsctl
+```
+
 ## Usage
 
 ### Create a new namespace
