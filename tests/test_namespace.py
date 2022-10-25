@@ -15,19 +15,26 @@
 
 from pathlib import Path
 
-USAGE = """
-punsctl <options>
+import pytest
 
-options:
-    -h                  Help menu
-    -r                  Root path                 (Default: ~/.ns)
-    -s                  Symlink path              (Default: ~/)
-    -l                  List namespaces
-    -n <namespace>      Create a new namespace
-    -d <namespace>      Delete existing namespace
-    -a <namespace>      Activate namespace
-    -x                  Deactivate namespaces
-"""
+from punsctl.namespace import Namespace
 
-DEFAULT_ROOT_PATH = f"{Path.home()}/.ns"
-DEFAULT_SYMLINK_PATH = f"{Path.home()}"
+
+@pytest.mark.usefixtures("root_space")
+def test_create_namespace(root_space, tmp_path):
+    ns = Namespace(root_space=root_space, name="test")
+
+    ns.create()
+
+    assert ns.get_path() == Path(f"{tmp_path}/{ns.get_name()}")
+
+
+@pytest.mark.usefixtures("root_space")
+def test_delete_namespace(root_space, tmp_path):
+    ns = Namespace(root_space=root_space, name="test")
+
+    ns.create()
+    assert ns.exists() is True
+
+    ns.remove()
+    assert ns.exists() is False

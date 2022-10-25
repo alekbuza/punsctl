@@ -13,11 +13,9 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-from pathlib import Path
-
 import pytest
 
 
 @pytest.mark.usefixtures("root_space")
-def test_root_space_path(root_space):
-    assert root_space.path == Path.cwd()
+def test_root_space_path(root_space, tmp_path):
+    assert root_space.path == tmp_path.absolute()
