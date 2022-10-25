@@ -13,7 +13,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-from os import R_OK, W_OK, access, readlink
+from os import R_OK, W_OK, access, mkdir, readlink
 from pathlib import Path
 from typing import List, Optional
 
@@ -35,7 +35,14 @@ class RootSpace(object):
     ):
         # Root path checks
         if not path.exists():
-            raise RootSpaceException(message=f"path {path} doesn't exists")
+            if access(path.parent, W_OK) is not True:
+                raise RootSpaceException(message=f"path {path} is not writable")
+
+            try:
+                mkdir(path, mode=0o744)
+
+            except OSError as exc:
+                raise RootSpaceException(message=exc.strerror)
 
         if not path.is_dir():
             raise RootSpaceException(message=f"path {path} is not a directory")
