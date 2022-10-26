@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "punsctl"
-version = "0.1.3"
+version = "0.1.4"
 description = "POSIX User's Namespace Control"
 authors = ["Aleksandar Buza <me@aleksandarbuza.com>"]
 license = "ISC"
