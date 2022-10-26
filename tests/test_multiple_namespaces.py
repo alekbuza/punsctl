@@ -19,6 +19,7 @@ import pytest
 
 from punsctl.namespace import Namespace
 from punsctl.rootspace import RootSpace
+from punsctl.static import CURRENT_NS_SYMLINK_NAME
 
 NAMESPACES = [
     "test",
@@ -65,8 +66,13 @@ def test_multiple_namespace(root_tmpdir, symlink_tmpdir):
         assert ns.active() is True
         assert ns.get_path() == Path(f"{root_tmpdir}/{ns.get_name()}")
 
-        assert Path(f"{rs.get_symlink_path()}/.current_ns").is_dir() is True
-        assert Path(f"{rs.get_symlink_path()}/.current_ns").is_symlink() is True
+        assert (
+            Path(f"{rs.get_symlink_path()}/{CURRENT_NS_SYMLINK_NAME}").is_dir() is True
+        )
+        assert (
+            Path(f"{rs.get_symlink_path()}/{CURRENT_NS_SYMLINK_NAME}").is_symlink()
+            is True
+        )
 
         ns.deactivate()
         ns.remove()

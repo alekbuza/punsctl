@@ -17,8 +17,22 @@ from pathlib import Path
 
 import pytest
 
-from punsctl.namespace import Namespace, NamespaceException
+from punsctl.namespace import Namespace
 from punsctl.rootspace import RootSpace
+from punsctl.static import CURRENT_NS_SYMLINK_NAME
+
+NAMESPACES = [
+    "test0",
+    "test1",
+    "test2",
+    "test3",
+    "test4",
+    "test5",
+    "test6",
+    "test7",
+    "test8",
+    "test9",
+]
 
 
 @pytest.fixture
@@ -37,26 +51,28 @@ def symlink_tmpdir(tmpdir):
     return path
 
 
-@pytest.mark.usefixtures()
-def test_namespace_exception(root_tmpdir, symlink_tmpdir):
+def test_multiple_namespace(root_tmpdir, symlink_tmpdir):
     rs = RootSpace(path=root_tmpdir, symlink_path=symlink_tmpdir)
-    ns1 = Namespace(root_space=rs, name="test_namespace_1")
-    ns2 = Namespace(root_space=rs, name="test_namespace_2")
 
-    assert ns1.exists() is False
+    for namespace in NAMESPACES:
+        ns = Namespace(root_space=rs, name=namespace)
 
-    ns1.create()
-    ns1.remove()
+        assert ns.exists() is False
 
-    with pytest.raises(NamespaceException):
-        ns1.activate()
+        ns.create()
+        ns.activate()
 
-    assert ns1.active() is False
+        assert ns.active() is True
+        assert ns.get_path() == Path(f"{root_tmpdir}/{ns.get_name()}")
 
-    ns2.create()
-    ns2.activate()
+        assert (
+            Path(f"{rs.get_symlink_path()}/{CURRENT_NS_SYMLINK_NAME}").is_dir() is True
+        )
+        assert (
+            Path(f"{rs.get_symlink_path()}/{CURRENT_NS_SYMLINK_NAME}").is_symlink()
+            is True
+        )
 
-    assert ns2.active() is True
+        ns.deactivate()
 
-    with pytest.raises(NamespaceException):
-        ns1.activate()
+    assert len(rs.get_all_ns_paths()) == 10
