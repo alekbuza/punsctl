@@ -17,7 +17,11 @@ from os import R_OK, W_OK, access, mkdir, readlink
 from pathlib import Path
 from typing import List, Optional
 
-from punsctl.static import DEFAULT_ROOT_PATH, DEFAULT_SYMLINK_PATH
+from punsctl.static import (
+    CURRENT_NS_SYMLINK_NAME,
+    DEFAULT_ROOT_PATH,
+    DEFAULT_SYMLINK_PATH,
+)
 
 __all__ = ["RootSpace", "RootSpaceException"]
 
@@ -62,7 +66,7 @@ class RootSpace(object):
 
         self.path = path
         self.symlink_path = symlink_path
-        self.current_ns_path = Path(f"{symlink_path}/.current_ns")
+        self.current_ns_path = Path(f"{symlink_path}/{CURRENT_NS_SYMLINK_NAME}")
 
     def get_path(self) -> Path:
         return self.path

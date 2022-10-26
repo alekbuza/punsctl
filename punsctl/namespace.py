@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import List
 
 from punsctl.rootspace import RootSpace
+from punsctl.static import CURRENT_NS_SYMLINK_NAME
 
 __all__ = ["Namespace", "NamespaceException"]
 
@@ -56,7 +57,7 @@ class Namespace(object):
             raise NamespaceException(message=exc.strerror)
 
     def exists(self) -> bool:
-        if not Path(self.path).exists():
+        if not self.path.exists():
             return False
 
         return True
@@ -90,6 +91,11 @@ class Namespace(object):
         return sources
 
     def activate(self) -> None:
+        if not self.exists():
+            raise NamespaceException(
+                message=f"{self.name} ({self.path}) doesn't exists"
+            )
+
         if self.current_ns_path.exists() and self.current_ns_path.is_symlink():
             if Path(readlink(self.current_ns_path)) == self.path:
                 pass
@@ -98,30 +104,32 @@ class Namespace(object):
                 raise NamespaceException(
                     message=(
                         f"{self.root_space.get_current_ns_name()} "
-                        f"namespace are already activated"
+                        f"namespace is already activated"
                     )
                 )
         else:
             self.current_ns_path.symlink_to(self.path)
 
         for source in self.__get_sources():
+            if source.name == CURRENT_NS_SYMLINK_NAME:
+                continue
+
             with Path(f"{self.symlink_path}/{source.name}") as target:
                 if target.exists():
                     if target.is_symlink() and Path(readlink(target)) == source:
                         continue
 
                     with target.with_name(f"{target.name}.{self.name}.bak") as backup:
-                        if not target.is_symlink():
+                        if not backup.exists():
                             target.rename(backup)
+
+                        else:
+                            continue
 
                 if not target.is_symlink():
                     target.symlink_to(source)
 
     def deactivate(self) -> None:
-        if self.current_ns_path.exists() and self.current_ns_path.is_symlink():
-            if Path(readlink(self.current_ns_path)) == self.path:
-                self.current_ns_path.unlink()
-
         for source in self.__get_sources():
             with Path(f"{self.symlink_path}/{source.name}") as target:
                 if target.exists():
@@ -129,5 +137,12 @@ class Namespace(object):
                         target.unlink()
 
                     with target.with_name(f"{target.name}.{self.name}.bak") as backup:
-                        if backup.exists():
+                        if backup.exists() and not backup.is_symlink():
+                            if target.exists():
+                                continue
+
                             backup.rename(target)
+
+        if self.current_ns_path.exists() and self.current_ns_path.is_symlink():
+            if Path(readlink(self.current_ns_path)) == self.path:
+                self.current_ns_path.unlink()

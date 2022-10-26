@@ -31,3 +31,4 @@ options:
 
 DEFAULT_ROOT_PATH = f"{Path.home()}/.ns"
 DEFAULT_SYMLINK_PATH = f"{Path.home()}"
+CURRENT_NS_SYMLINK_NAME = ".current_ns"
