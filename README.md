@@ -3,9 +3,10 @@
 # punsctl - POSIX User's Namespace Control
 
 [![PyPI Version](https://img.shields.io/pypi/v/punsctl)](https://pypi.python.org/pypi/punsctl)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/punsctl?style=flat-square)
+![PyPI - Wheel](https://img.shields.io/pypi/wheel/punsctl)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/punsctl)
 ![PyPI - Implementation](https://img.shields.io/pypi/implementation/punsctl)
-![PyPI - Wheel](https://img.shields.io/pypi/wheel/punsctl)
 
 [![codecov](https://codecov.io/github/alekbuza/punsctl/branch/main/graph/badge.svg?token=OMHOSME5ZB)](https://codecov.io/github/alekbuza/punsctl)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
