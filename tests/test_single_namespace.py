@@ -18,23 +18,42 @@ from pathlib import Path
 import pytest
 
 from punsctl.namespace import Namespace
+from punsctl.rootspace import RootSpace
 
 
-@pytest.mark.usefixtures("root_space")
-def test_create_namespace(root_space, tmp_path):
-    ns = Namespace(root_space=root_space, name="test")
+@pytest.fixture
+def root_tmpdir(tmpdir):
+    path = Path(f"{tmpdir}/.ns")
+    path.mkdir(parents=True, exist_ok=True)
+
+    return path
+
+
+@pytest.fixture
+def symlink_tmpdir(tmpdir):
+    path = Path(f"{tmpdir}/workspace")
+    path.mkdir(parents=True, exist_ok=True)
+
+    return path
+
+
+@pytest.mark.usefixtures()
+def test_single_namespace(root_tmpdir, symlink_tmpdir):
+    rs = RootSpace(path=root_tmpdir, symlink_path=symlink_tmpdir)
+    ns = Namespace(root_space=rs, name="single_namespace_test")
+
+    assert ns.exists() is False
 
     ns.create()
+    ns.activate()
 
-    assert ns.get_path() == Path(f"{tmp_path}/{ns.get_name()}")
+    assert ns.active() is True
+    assert ns.get_path() == Path(f"{root_tmpdir}/{ns.get_name()}")
 
+    assert Path(f"{rs.get_symlink_path()}/.current_ns").is_dir() is True
+    assert Path(f"{rs.get_symlink_path()}/.current_ns").is_symlink() is True
 
-@pytest.mark.usefixtures("root_space")
-def test_delete_namespace(root_space, tmp_path):
-    ns = Namespace(root_space=root_space, name="test")
-
-    ns.create()
-    assert ns.exists() is True
-
+    ns.deactivate()
     ns.remove()
+
     assert ns.exists() is False
