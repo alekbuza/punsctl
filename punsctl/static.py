@@ -19,14 +19,15 @@ USAGE = """
 punsctl <options>
 
 options:
-    -h                  Help menu
-    -r                  Root path                 (Default: ~/.ns)
-    -s                  Symlink path              (Default: ~/)
-    -l                  List namespaces
-    -n <namespace>      Create namespace
-    -d <namespace>      Delete namespace
-    -a <namespace>      Activate namespace
-    -x                  Deactivate namespaces
+    -h                Help menu
+    -v                Verbose mode             (The maximum is 1)
+    -r                Root path                (Default: ~/.ns)
+    -s                Symlink path             (Default: ~/)
+    -l                List namespaces
+    -n <namespace>    Create namespace
+    -d <namespace>    Delete namespace
+    -a <namespace>    Activate namespace
+    -x                Deactivate namespaces
 """
 
 DEFAULT_ROOT_PATH = f"{Path.home()}/.ns"
