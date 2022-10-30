@@ -13,6 +13,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+import logging
 from os import R_OK, W_OK, access, mkdir, readlink
 from pathlib import Path
 from typing import List, Optional
@@ -38,6 +39,7 @@ class RootSpace(object):
         symlink_path: Path = Path(DEFAULT_SYMLINK_PATH),
     ):
         # Root path checks
+        logging.debug(f"debug: checking {path.parent} write permissions")
         if not path.exists():
             if access(path.parent, W_OK) is not True:
                 raise RootSpaceException(message=f"path {path} is not writable")
@@ -48,25 +50,36 @@ class RootSpace(object):
             except OSError as exc:
                 raise RootSpaceException(message=exc.strerror)
 
+        logging.debug(f"debug: checking {path} is a directory")
         if not path.is_dir():
             raise RootSpaceException(message=f"path {path} is not a directory")
 
+        logging.debug(f"debug: checking {path} read permissions")
         if access(path, R_OK) is not True:
             raise RootSpaceException(message=f"path {path} is not readable")
 
         # Symlink path checks
+        logging.debug(f"debug: checking {symlink_path} exists")
         if not symlink_path.exists():
             raise RootSpaceException(message=f"path {symlink_path} doesn't exists")
 
+        logging.debug(f"debug: checking {symlink_path} is a directory")
         if not symlink_path.is_dir():
             raise RootSpaceException(message=f"path {symlink_path} is not a directory")
 
+        logging.debug(f"debug: checking {symlink_path} write permissions")
         if access(symlink_path, W_OK) is not True:
             raise RootSpaceException(message=f"path {symlink_path} is not writable")
 
         self.path = path
         self.symlink_path = symlink_path
         self.current_ns_path = Path(f"{symlink_path}/{CURRENT_NS_SYMLINK_NAME}")
+
+        logging.debug(f"debug: rootspace path: {self.path}")
+        logging.debug(f"debug: rootspace symlink path: {self.symlink_path}")
+        logging.debug(
+            f"debug: rootspace current namespace path: {self.current_ns_path}"
+        )
 
     def get_path(self) -> Path:
         return self.path

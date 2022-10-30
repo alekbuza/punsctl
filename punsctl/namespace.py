@@ -13,12 +13,14 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+import logging
 from os import mkdir, readlink, rmdir
 from pathlib import Path
 from typing import List
 
 from punsctl.rootspace import RootSpace
 from punsctl.static import CURRENT_NS_SYMLINK_NAME
+from punsctl.utils import func_rename_path, func_symlink_path, func_unlink_path
 
 __all__ = ["Namespace", "NamespaceException"]
 
@@ -41,6 +43,9 @@ class Namespace(object):
         self.current_ns_path = root_space.get_current_ns_path()
         self.path = Path(f"{root_space.get_path()}/{name}")
 
+        logging.debug(f"debug: namespace name: {self.name}")
+        logging.debug(f"debug: namespace path: {self.path}")
+
     def create(self) -> None:
         try:
             mkdir(self.path, mode=0o744)
@@ -51,6 +56,7 @@ class Namespace(object):
     def remove(self) -> None:
         try:
             if self.exists():
+                logging.debug(f"debug: mkdir: {self.path}")
                 rmdir(self.path)
 
         except OSError as exc:
@@ -121,28 +127,33 @@ class Namespace(object):
 
                     with target.with_name(f"{target.name}.{self.name}.bak") as backup:
                         if not backup.exists():
-                            target.rename(backup)
+                            logging.debug(f"debug: rename {target} -> {backup}")
+                            func_rename_path(path=target, target=backup)
 
                         else:
                             continue
 
                 if not target.is_symlink():
-                    target.symlink_to(source)
+                    logging.debug(f"debug: symlink {target} -> {source}")
+                    func_symlink_path(target=target, source=source)
 
     def deactivate(self) -> None:
         for source in self.__get_sources():
             with Path(f"{self.symlink_path}/{source.name}") as target:
                 if target.exists():
                     if target.is_symlink() and Path(readlink(target)) == source:
-                        target.unlink()
+                        logging.debug(f"debug: unlink {target}")
+                        func_unlink_path(symlink=target)
 
                     with target.with_name(f"{target.name}.{self.name}.bak") as backup:
                         if backup.exists() and not backup.is_symlink():
                             if target.exists():
                                 continue
 
-                            backup.rename(target)
+                            logging.debug(f"debug: rename {target} -> {backup}")
+                            func_rename_path(path=backup, target=target)
 
         if self.current_ns_path.exists() and self.current_ns_path.is_symlink():
             if Path(readlink(self.current_ns_path)) == self.path:
-                self.current_ns_path.unlink()
+                logging.debug(f"debug: unlink {self.current_ns_path}")
+                func_unlink_path(symlink=self.current_ns_path)

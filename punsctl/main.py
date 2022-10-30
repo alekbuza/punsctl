@@ -13,7 +13,9 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+import logging
 import sys
+from functools import wraps
 from pathlib import Path
 from typing import List, Tuple
 
@@ -22,8 +24,33 @@ from punsctl.rootspace import RootSpace, RootSpaceException
 from punsctl.sgetopt import sgetopt
 from punsctl.static import DEFAULT_ROOT_PATH, DEFAULT_SYMLINK_PATH, USAGE
 
+handler = logging.StreamHandler(sys.stdout)
+handler.setFormatter(logging.Formatter("%(message)s"))
 
-@sgetopt(args=sys.argv[1:], optstring="hlxr:s:n:d:a:")
+logger = logging.getLogger()
+logger.addHandler(handler)
+
+
+def main_exception_handler(func):
+    @wraps(func)
+    def inner_func(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+
+        except RootSpaceException as exc:
+            sys.exit(f"rootspace error: {exc.message}")
+
+        except NamespaceException as exc:
+            sys.exit(f"namespace error: {exc.message}")
+
+        except Exception as exc:
+            logging.critical(f"unexpected error: {exc}")
+
+    return inner_func
+
+
+@main_exception_handler
+@sgetopt(args=sys.argv[1:], optstring="hlxvr:s:n:d:a:")
 def main(opts: List[Tuple], argv: List[str]) -> None:
     if len(opts) == 0:
         sys.exit(USAGE)
@@ -35,10 +62,17 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
     opt_delete = None
     opt_activate = None
     opt_deactivate = False
+    opt_verbose = False
+
+    verbose_level = 0
 
     for opt, arg in opts:
         if opt == "-h":
             sys.exit(USAGE)
+
+        elif opt == "-v":
+            opt_verbose = True
+            verbose_level += 1
 
         elif opt == "-l":
             opt_list = True
@@ -64,58 +98,45 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
         else:
             sys.exit(USAGE)
 
-    try:
-        root_space = RootSpace(
-            path=Path(opt_root_path), symlink_path=Path(opt_symlink_path)
-        )
+    if opt_verbose:
+        if verbose_level == 1:
+            logger.setLevel(logging.DEBUG)
+            logging.debug(f"debug: sgetopt opts: f{opts}")
+            logging.debug(f"debug: sgetopt argv: f{argv}")
 
-    except RootSpaceException as exc:
-        sys.exit(f"root error: {exc.message}")
+    root_space = RootSpace(
+        path=Path(opt_root_path), symlink_path=Path(opt_symlink_path)
+    )
 
     if opt_list:
         for namespace in root_space.get_all_ns_paths():
-            try:
-                ns = Namespace(
-                    name=namespace.name,
-                    root_space=root_space,
-                )
+            ns = Namespace(
+                name=namespace.name,
+                root_space=root_space,
+            )
 
-                sys.stdout.write(
-                    f"{namespace.name} ({namespace.absolute()}) "
-                    f"{'active' if ns.active() else ''}\n"
-                )
-            except NamespaceException as exc:
-                sys.exit(f"namespace error: {exc.message}")
+            sys.stdout.write(
+                f"{namespace.name} ({namespace.absolute()}) "
+                f"{'active' if ns.active() else ''}\n"
+            )
 
     elif opt_create is not None:
         ns = Namespace(name=opt_create, root_space=root_space)
 
-        try:
-            ns.create()
-            sys.stdout.write(f"info: {opt_create} created\n")
-
-        except NamespaceException as exc:
-            sys.exit(f"namespace error: {exc.message}")
+        ns.create()
+        sys.stdout.write(f"info: {opt_create} created\n")
 
     elif opt_delete is not None:
         ns = Namespace(name=opt_delete, root_space=root_space)
 
-        try:
-            ns.remove()
-            sys.stdout.write(f"info: {opt_delete} removed\n")
-
-        except NamespaceException as exc:
-            sys.exit(f"namespace error: {exc.message}")
+        ns.remove()
+        sys.stdout.write(f"info: {opt_delete} removed\n")
 
     elif opt_activate is not None:
         ns = Namespace(name=opt_activate, root_space=root_space)
 
-        try:
-            ns.activate()
-            sys.stdout.write(f"info: {opt_activate} activated\n")
-
-        except NamespaceException as exc:
-            sys.exit(f"namespace error: {exc.message}")
+        ns.activate()
+        sys.stdout.write(f"info: {opt_activate} activated\n")
 
     elif opt_deactivate:
         for namespace in root_space.get_all_ns_paths():
@@ -125,4 +146,4 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
         sys.stdout.write("info: namespaces are deactivated successfully\n")
 
     else:
-        sys.stdout.write(USAGE)
+        sys.exit(USAGE)
