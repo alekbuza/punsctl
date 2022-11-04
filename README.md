@@ -34,9 +34,9 @@ options:
     -s                  Symlink path              (Default: ~/)
     -l                  List namespaces
     -n <namespace>      Create namespace
-    -d <namespace>      Delete namespace
+    -x <namespace>      Delete namespace
     -a <namespace>      Activate namespace
-    -x                  Deactivate namespaces
+    -d                  Deactivate namespaces
 ```
 
 ### List all namespaces
@@ -61,12 +61,12 @@ punsctl -p <root_path> -n <namespace>
 
 ### Delete namespace
 ```sh
-punsctl -d <namespace>
+punsctl -x <namespace>
 ```
 
 ### Delete namespace in `non-default` root path
 ```sh
-punsctl -p <root_path> -d <namespace>
+punsctl -p <root_path> -x <namespace>
 ```
 
 ### Activate namespace
@@ -87,6 +87,6 @@ punsctl -p <root_path> -s <symlink_path> -a <namespace>
 
 ### Deactivate namespaces
 ```sh
-punsctl -x
+punsctl -d
 ```
 

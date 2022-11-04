@@ -17,7 +17,8 @@ from pathlib import Path
 
 import pytest
 
-from punsctl.namespace import Namespace, NamespaceException
+from punsctl.exceptions import NamespaceException
+from punsctl.namespace import Namespace
 from punsctl.rootspace import RootSpace
 
 

@@ -15,14 +15,19 @@
 
 import logging
 import sys
-from functools import wraps
 from pathlib import Path
 from typing import List, Tuple
 
-from punsctl.namespace import Namespace, NamespaceException
-from punsctl.rootspace import RootSpace, RootSpaceException
+from punsctl.exceptions import main_exception_handler
+from punsctl.namespace import Namespace
+from punsctl.rootspace import RootSpace
 from punsctl.sgetopt import sgetopt
-from punsctl.static import DEFAULT_ROOT_PATH, DEFAULT_SYMLINK_PATH, USAGE
+from punsctl.static import (
+    DEFAULT_ROOTSPACE_PATH,
+    DEFAULT_SYMLINK_PATH,
+    SGETOPT_STRING,
+    USAGE,
+)
 
 handler = logging.StreamHandler(sys.stdout)
 handler.setFormatter(logging.Formatter("%(message)s"))
@@ -31,32 +36,14 @@ logger = logging.getLogger()
 logger.addHandler(handler)
 
 
-def main_exception_handler(func):
-    @wraps(func)
-    def inner_func(*args, **kwargs):
-        try:
-            func(*args, **kwargs)
-
-        except RootSpaceException as exc:
-            sys.exit(f"rootspace error: {exc.message}")
-
-        except NamespaceException as exc:
-            sys.exit(f"namespace error: {exc.message}")
-
-        except Exception as exc:
-            logging.critical(f"unexpected error: {exc}")
-
-    return inner_func
-
-
 @main_exception_handler
-@sgetopt(args=sys.argv[1:], optstring="hlxvr:s:n:d:a:")
+@sgetopt(args=sys.argv[1:], optstring=SGETOPT_STRING)
 def main(opts: List[Tuple], argv: List[str]) -> None:
     if len(opts) == 0:
         sys.exit(USAGE)
 
     opt_list = False
-    opt_root_path = DEFAULT_ROOT_PATH
+    opt_root_path = DEFAULT_ROOTSPACE_PATH
     opt_symlink_path = DEFAULT_SYMLINK_PATH
     opt_create = None
     opt_delete = None
@@ -77,7 +64,7 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
         elif opt == "-l":
             opt_list = True
 
-        elif opt == "-x":
+        elif opt == "-d":
             opt_deactivate = True
 
         elif opt == "-r":
@@ -89,7 +76,7 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
         elif opt == "-n":
             opt_create = arg if arg is not None else sys.exit(USAGE)
 
-        elif opt == "-d":
+        elif opt == "-x":
             opt_delete = arg if arg is not None else sys.exit(USAGE)
 
         elif opt == "-a":
@@ -99,7 +86,7 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
             sys.exit(USAGE)
 
     if opt_verbose:
-        if verbose_level == 1:
+        if verbose_level >= 1:
             logger.setLevel(logging.DEBUG)
             logging.debug(f"debug: sgetopt opts: f{opts}")
             logging.debug(f"debug: sgetopt argv: f{argv}")
@@ -107,6 +94,8 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
     root_space = RootSpace(
         path=Path(opt_root_path), symlink_path=Path(opt_symlink_path)
     )
+
+    root_space.check()
 
     if opt_list:
         for namespace in root_space.get_all_ns_paths():
