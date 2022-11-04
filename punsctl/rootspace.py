@@ -18,59 +18,23 @@ from os import R_OK, W_OK, access, mkdir, readlink
 from pathlib import Path
 from typing import List, Optional
 
+from punsctl.exceptions import RootSpaceException
 from punsctl.static import (
     CURRENT_NS_SYMLINK_NAME,
-    DEFAULT_ROOT_PATH,
+    DEFAULT_ROOTSPACE_MKDIR_MODE,
+    DEFAULT_ROOTSPACE_PATH,
     DEFAULT_SYMLINK_PATH,
 )
 
-__all__ = ["RootSpace", "RootSpaceException"]
-
-
-class RootSpaceException(Exception):
-    def __init__(self, message):
-        self.message = message
+__all__ = ["RootSpace"]
 
 
 class RootSpace(object):
     def __init__(
         self,
-        path: Path = Path(DEFAULT_ROOT_PATH),
+        path: Path = Path(DEFAULT_ROOTSPACE_PATH),
         symlink_path: Path = Path(DEFAULT_SYMLINK_PATH),
     ):
-        # Root path checks
-        logging.debug(f"debug: checking {path.parent} write permissions")
-        if not path.exists():
-            if access(path.parent, W_OK) is not True:
-                raise RootSpaceException(message=f"path {path} is not writable")
-
-            try:
-                mkdir(path, mode=0o744)
-
-            except OSError as exc:
-                raise RootSpaceException(message=exc.strerror)
-
-        logging.debug(f"debug: checking {path} is a directory")
-        if not path.is_dir():
-            raise RootSpaceException(message=f"path {path} is not a directory")
-
-        logging.debug(f"debug: checking {path} read permissions")
-        if access(path, R_OK) is not True:
-            raise RootSpaceException(message=f"path {path} is not readable")
-
-        # Symlink path checks
-        logging.debug(f"debug: checking {symlink_path} exists")
-        if not symlink_path.exists():
-            raise RootSpaceException(message=f"path {symlink_path} doesn't exists")
-
-        logging.debug(f"debug: checking {symlink_path} is a directory")
-        if not symlink_path.is_dir():
-            raise RootSpaceException(message=f"path {symlink_path} is not a directory")
-
-        logging.debug(f"debug: checking {symlink_path} write permissions")
-        if access(symlink_path, W_OK) is not True:
-            raise RootSpaceException(message=f"path {symlink_path} is not writable")
-
         self.path = path
         self.symlink_path = symlink_path
         self.current_ns_path = Path(f"{symlink_path}/{CURRENT_NS_SYMLINK_NAME}")
@@ -80,6 +44,44 @@ class RootSpace(object):
         logging.debug(
             f"debug: rootspace current namespace path: {self.current_ns_path}"
         )
+
+    def check(self) -> None:
+        # Root path checks
+        logging.debug(f"debug: checking {self.path.parent} write permissions")
+        if not self.path.exists():
+            if access(self.path.parent, W_OK) is not True:
+                raise RootSpaceException(message=f"path {self.path} is not writable")
+
+            try:
+                mkdir(self.path, mode=DEFAULT_ROOTSPACE_MKDIR_MODE)
+
+            except OSError as exc:
+                raise RootSpaceException(message=exc.strerror)
+
+        logging.debug(f"debug: checking {self.path} is a directory")
+        if not self.path.is_dir():
+            raise RootSpaceException(message=f"path {self.path} is not a directory")
+
+        logging.debug(f"debug: checking {self.path} read permissions")
+        if access(self.path, R_OK) is not True:
+            raise RootSpaceException(message=f"path {self.path} is not readable")
+
+        # Symlink path checks
+        logging.debug(f"debug: checking {self.symlink_path} exists")
+        if not self.symlink_path.exists():
+            raise RootSpaceException(message=f"path {self.symlink_path} doesn't exists")
+
+        logging.debug(f"debug: checking {self.symlink_path} is a directory")
+        if not self.symlink_path.is_dir():
+            raise RootSpaceException(
+                message=f"path {self.symlink_path} is not a directory"
+            )
+
+        logging.debug(f"debug: checking {self.symlink_path} write permissions")
+        if access(self.symlink_path, W_OK) is not True:
+            raise RootSpaceException(
+                message=f"path {self.symlink_path} is not writable"
+            )
 
     def get_path(self) -> Path:
         return self.path

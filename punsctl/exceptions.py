@@ -14,11 +14,39 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import logging
+import sys
 from functools import wraps
-from pathlib import Path
 
 
-def exception_handler(func):
+class NamespaceException(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+class RootSpaceException(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+def main_exception_handler(func):
+    @wraps(func)
+    def inner_func(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+
+        except RootSpaceException as exc:
+            sys.exit(f"rootspace error: {exc.message}")
+
+        except NamespaceException as exc:
+            sys.exit(f"namespace error: {exc.message}")
+
+        except Exception as exc:
+            sys.exit(f"unexpected error: {exc}")
+
+    return inner_func
+
+
+def fs_ops_exception_handler(func):
     @wraps(func)
     def inner_func(*args, **kwargs):
         try:
@@ -26,30 +54,15 @@ def exception_handler(func):
 
         except PermissionError as exc:
             logging.warning(
-                f"warning: {exc.strerror}: " f"{exc.filename} -> {exc.filename2}"
+                f"warning: {exc.strerror}: {exc.filename} -> {exc.filename2}"
             )
 
         except FileExistsError as exc:
             logging.warning(
-                f"warning: {exc.strerror}: " f"{exc.filename} -> {exc.filename2}"
+                f"warning: {exc.strerror}: {exc.filename} -> {exc.filename2}"
             )
 
         except Exception as exc:
             logging.critical(f"unexpected error: {exc}")
 
     return inner_func
-
-
-@exception_handler
-def func_rename_path(path: Path, target: Path) -> None:
-    path.rename(target)
-
-
-@exception_handler
-def func_symlink_path(target: Path, source: Path) -> None:
-    target.symlink_to(source)
-
-
-@exception_handler
-def func_unlink_path(symlink: Path) -> None:
-    symlink.unlink()

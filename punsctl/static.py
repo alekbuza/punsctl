@@ -25,11 +25,16 @@ options:
     -s                Symlink path             (Default: ~/)
     -l                List namespaces
     -n <namespace>    Create namespace
-    -d <namespace>    Delete namespace
+    -x <namespace>    Delete namespace
     -a <namespace>    Activate namespace
-    -x                Deactivate namespaces
+    -d                Deactivate namespaces
 """
 
-DEFAULT_ROOT_PATH = f"{Path.home()}/.ns"
+SGETOPT_STRING = "hlvd:s:n:d:a:x:"
+
+DEFAULT_ROOTSPACE_MKDIR_MODE = 0o744
+DEFAULT_NAMESPACE_MKDIR_MODE = 0o744
+
+DEFAULT_ROOTSPACE_PATH = f"{Path.home()}/.ns"
 DEFAULT_SYMLINK_PATH = f"{Path.home()}"
 CURRENT_NS_SYMLINK_NAME = ".current_ns"
