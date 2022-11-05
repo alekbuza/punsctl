@@ -38,8 +38,8 @@ class Namespace(object):
         self.current_ns_path = root_space.get_current_ns_path()
         self.path = Path(f"{root_space.get_path()}/{name}")
 
-        logging.debug(f"debug: namespace name: {self.name}")
-        logging.debug(f"debug: namespace path: {self.path}")
+        logging.debug(f"debug: namespace: name: {self.name}")
+        logging.debug(f"debug: namespace: path: {self.path}")
 
     def create(self) -> None:
         try:
@@ -65,7 +65,7 @@ class Namespace(object):
 
     def load_nsignore(self) -> List[str]:
         ns_ignore = Path(f"{self.path}/.nsignore")
-        if ns_ignore.exists():
+        if ns_ignore.exists() and ns_ignore.is_file():
             with open(ns_ignore) as fd:
                 return [line.rstrip() for line in fd]
 
@@ -115,11 +115,15 @@ class Namespace(object):
         symlink.unlink()
 
     def activate(self) -> None:
+        logging.debug(f"debug: namespace: activating {self.name} namespace")
+        logging.debug(f"debug: namespace: checking if {self.name} namespace exists")
+
         if not self.exists():
             raise NamespaceException(
                 message=f"{self.name} ({self.path}) doesn't exists"
             )
 
+        logging.debug("debug: namespace: checking if .current_ns exists")
         if self.current_ns_path.exists() and self.current_ns_path.is_symlink():
             if Path(readlink(self.current_ns_path)) == self.path:
                 pass
@@ -134,38 +138,54 @@ class Namespace(object):
         else:
             self.current_ns_path.symlink_to(self.path)
 
+        logging.debug("debug: namespace: loading .nsignore")
         nsignore = self.load_nsignore()
+        logging.debug(f"debug: namespace: .nsignore: {nsignore}")
 
         for source in self.__get_sources():
+            logging.debug(f"debug: namespace: processing {source}")
+
             if source.name == CURRENT_NS_SYMLINK_NAME:
+                logging.debug(f"debug: namespace: ignoring {source.name}")
+
                 continue
 
             if source.name in nsignore:
+                logging.debug(f"debug: namespace: ignoring {source}")
                 continue
 
             with Path(f"{self.symlink_path}/{source.name}") as target:
                 if target.exists():
                     if target.is_symlink() and Path(readlink(target)) == source:
+                        logging.debug(
+                            f"debug: namespace: source {source} "
+                            f"link exists, skipping ..."
+                        )
+
                         continue
 
                     with target.with_name(f"{target.name}.{self.name}.bak") as backup:
                         if not backup.exists():
-                            logging.debug(f"debug: rename {target} -> {backup}")
+                            logging.debug(
+                                f"debug: namespace: rename {target} -> {backup}"
+                            )
                             self.__rename_path(path=target, target=backup)
 
                         else:
                             continue
 
                 if not target.is_symlink():
-                    logging.debug(f"debug: symlink {target} -> {source}")
+                    logging.debug(f"debug: namespace: symlink {target} -> {source}")
                     self.__symlink_path(target=target, source=source)
 
     def deactivate(self) -> None:
         for source in self.__get_sources():
+            logging.debug(f"debug: namespace: processing {source}")
+
             with Path(f"{self.symlink_path}/{source.name}") as target:
                 if target.exists():
                     if target.is_symlink() and Path(readlink(target)) == source:
-                        logging.debug(f"debug: unlink {target}")
+                        logging.debug(f"debug: namespace: unlink {target}")
                         self.__unlink_path(symlink=target)
 
                     with target.with_name(f"{target.name}.{self.name}.bak") as backup:
@@ -173,10 +193,12 @@ class Namespace(object):
                             if target.exists():
                                 continue
 
-                            logging.debug(f"debug: rename {target} -> {backup}")
+                            logging.debug(
+                                f"debug: namespace: rename {target} -> {backup}"
+                            )
                             self.__rename_path(path=backup, target=target)
 
         if self.current_ns_path.exists() and self.current_ns_path.is_symlink():
             if Path(readlink(self.current_ns_path)) == self.path:
-                logging.debug(f"debug: unlink {self.current_ns_path}")
+                logging.debug(f"debug: namespace: unlink {self.current_ns_path}")
                 self.__unlink_path(symlink=self.current_ns_path)

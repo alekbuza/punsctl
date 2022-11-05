@@ -39,15 +39,17 @@ class RootSpace(object):
         self.symlink_path = symlink_path
         self.current_ns_path = Path(f"{symlink_path}/{CURRENT_NS_SYMLINK_NAME}")
 
-        logging.debug(f"debug: rootspace path: {self.path}")
-        logging.debug(f"debug: rootspace symlink path: {self.symlink_path}")
+        logging.debug(f"debug: rootspace: path: {self.path}")
+        logging.debug(f"debug: rootspace: symlink path: {self.symlink_path}")
         logging.debug(
-            f"debug: rootspace current namespace path: {self.current_ns_path}"
+            f"debug: rootspace: current namespace path: {self.current_ns_path}"
         )
 
     def check(self) -> None:
         # Root path checks
-        logging.debug(f"debug: checking {self.path.parent} write permissions")
+        logging.debug(
+            f"debug: rootspace: checking {self.path.parent} write permissions"
+        )
         if not self.path.exists():
             if access(self.path.parent, W_OK) is not True:
                 raise RootSpaceException(message=f"path {self.path} is not writable")
@@ -58,26 +60,28 @@ class RootSpace(object):
             except OSError as exc:
                 raise RootSpaceException(message=exc.strerror)
 
-        logging.debug(f"debug: checking {self.path} is a directory")
+        logging.debug(f"debug: rootspace: checking {self.path} is a directory")
         if not self.path.is_dir():
             raise RootSpaceException(message=f"path {self.path} is not a directory")
 
-        logging.debug(f"debug: checking {self.path} read permissions")
+        logging.debug(f"debug: rootspace: checking {self.path} read permissions")
         if access(self.path, R_OK) is not True:
             raise RootSpaceException(message=f"path {self.path} is not readable")
 
         # Symlink path checks
-        logging.debug(f"debug: checking {self.symlink_path} exists")
+        logging.debug(f"debug: rootspace: checking {self.symlink_path} exists")
         if not self.symlink_path.exists():
             raise RootSpaceException(message=f"path {self.symlink_path} doesn't exists")
 
-        logging.debug(f"debug: checking {self.symlink_path} is a directory")
+        logging.debug(f"debug: rootspace: checking {self.symlink_path} is a directory")
         if not self.symlink_path.is_dir():
             raise RootSpaceException(
                 message=f"path {self.symlink_path} is not a directory"
             )
 
-        logging.debug(f"debug: checking {self.symlink_path} write permissions")
+        logging.debug(
+            f"debug: rootspace: checking {self.symlink_path} write permissions"
+        )
         if access(self.symlink_path, W_OK) is not True:
             raise RootSpaceException(
                 message=f"path {self.symlink_path} is not writable"

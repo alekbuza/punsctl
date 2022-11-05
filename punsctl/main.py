@@ -88,8 +88,8 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
     if opt_verbose:
         if verbose_level >= 1:
             logger.setLevel(logging.DEBUG)
-            logging.debug(f"debug: sgetopt opts: f{opts}")
-            logging.debug(f"debug: sgetopt argv: f{argv}")
+            logging.debug(f"debug: sgetopt opts: {opts}")
+            logging.debug(f"debug: sgetopt argv: {argv}")
 
     root_space = RootSpace(
         path=Path(opt_root_path), symlink_path=Path(opt_symlink_path)
