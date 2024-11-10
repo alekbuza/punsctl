@@ -1,5 +1,3 @@
-### `The project is currently under development and is not ready for use in production.`
-
 # punsctl - POSIX User's Namespace Control
 
 [![PyPI Version](https://img.shields.io/pypi/v/punsctl)](https://pypi.python.org/pypi/punsctl)
