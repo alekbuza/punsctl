@@ -12,31 +12,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pipx install poetry
-      - run: poetry install
-      - run: poetry run pytest --cov=./ --cov-report=xml
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install ${{ matrix.python-version }}
+      - run: uv sync
+      - run: uv run black punsctl/ --check
+      - run: uv run isort punsctl/ --check-only --profile black
+      - run: uv run flake8 punsctl/
+      - run: uv run bandit -r punsctl/
+      - run: uv run pytest --cov=./ --cov-report=xml
       - uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
-  code-quality:
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pipx install poetry
-      - run: poetry install
-      - run: poetry run black . --check
-      - run: poetry run isort . --check-only --profile black
-      - run: poetry run flake8 .
-      - run: poetry run bandit -r punsctl/

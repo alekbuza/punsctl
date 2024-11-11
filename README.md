@@ -9,16 +9,14 @@
 [![codecov](https://codecov.io/github/alekbuza/punsctl/graph/badge.svg?token=OMHOSME5ZB)](https://codecov.io/github/alekbuza/punsctl)
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
-
-The `punsctl` utility manages multiple namespaces (user environments) for the current POSIX user.
-That means the user can have multiple "_profiles_" for the same or different tool configurations in the same user account
-(`~/.ssh`, `~/.gitconfig`, `~/.gnupg`, `~/.config`, `~/.config/nvim`, ...).
-The user can create, delete, activate and deactivate namespaces without additional permissions.
+The `punsctl` utility allows users to manage multiple namespaces (or profiles) for various tool configurations within a single POSIX user account.
+This enables users to maintain separate configurations for tools like `~/.ssh`, `~/.gitconfig`, `~/.gnupg`, `~/.config`, `~/.config/nvim`, and others, all under the same user account.
+With punsctl, users can easily create, delete, activate, or deactivate namespaces without requiring additional system permissions, providing a flexible way to manage different environments or workflows.
 
 ## Installation
 
 ```sh
-pip install punsctl
+pipx install punsctl
 ```
 
 ## Usage

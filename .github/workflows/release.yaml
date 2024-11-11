@@ -6,20 +6,13 @@ on:
       - created
 jobs:
   publish:
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.10"]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: pipx install poetry
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install $PYTHON_VERSION
+        env:
+          PYTHON_VERSION: "3.12"
+      - run: uv publish --token $PYPI_TOKEN
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-      - run: |
-          poetry config pypi-token.pypi $PYPI_TOKEN
-          poetry publish --build
