@@ -15,6 +15,7 @@ jobs:
       - uses: astral-sh/setup-uv@v3
       - run: uv python install ${{ matrix.python-version }}
       - run: uv sync
+      - run: uv build
       - run: uv run black punsctl/ --check
       - run: uv run isort punsctl/ --check-only --profile black
       - run: uv run flake8 punsctl/
