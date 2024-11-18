@@ -1,41 +1,51 @@
-[tool.poetry]
+[project]
 name = "punsctl"
-version = "0.2.1"
+version = "0.2.2"
 description = "POSIX User's Namespace Control"
-authors = ["Aleksandar Buza <me@aleksandarbuza.com>"]
-license = "ISC"
-readme = "README.md"
-homepage = "https://github.com/alekbuza/punsctl"
-repository = "https://github.com/alekbuza/punsctl"
-keywords = ["posix", "user", "namespace"]
+readme = {file = "README.md", content-type = "text/markdown"}
+license = {file = "LICENSE"}
+authors = [
+  {name = "Aleksandar Buza", email = "tech@aleksandarbuza.com"},
+]
+requires-python = ">=3.9"
+dependencies = []
+
 classifiers = [
     "Environment :: Console",
+    "Operating System :: POSIX",
     "Operating System :: Unix",
     "Operating System :: MacOS",
-    "Operating System :: POSIX :: Linux"
-]
-include = [
-    "LICENSE",
+    "Operating System :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.12",
 ]
 
-[tool.poetry.scripts]
+[project.urls]
+Homepage = "https://github.com/alekbuza/punsctl"
+Repository = "https://github.com/alekbuza/punsctl"
+Issues = "https://github.com/alekbuza/punsctl/issues"
+Changelog = "https://github.com/alekbuza/punsctl/blob/main/CHANGELOG.md"
+
+[project.scripts]
 punsctl = "punsctl.main:main"
 
-[tool.poetry.dependencies]
-python = "^3.8"
-
-[tool.poetry.dev-dependencies]
-black = "^22.10.0"
-flake8 = "^5.0.4"
-isort = "^5.10.1"
-pygount = "^1.4.0"
-bandit = "^1.7.4"
-pytest = "^7.1.3"
-pytest-cov = "^4.0.0"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+package = true
+dev-dependencies = [
+    "bandit>=1.7.10",
+    "flake8>=7.1.1",
+    "isort>=5.13.2",
+    "pygount>=1.8.0",
+    "pytest-cov>=6.0.0",
+    "pytest>=8.3.3",
+    "ruff>=0.7.3",
+    "black>=24.10.0",
+]
 
 [tool.isort]
 profile = "black"

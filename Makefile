@@ -1,4 +1,4 @@
-# Copyright (c) 2022 Aleksandar Buza <me@aleksandarbuza.com>
+# Copyright (c) 2022, 2024 Aleksandar Buza <tech@aleksandarbuza.com>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -21,35 +21,11 @@ BASE_PATH = $(shell pwd)
 
 help:
 	@echo "---------------HELP-----------------"
-	@echo "build      - Build punsctl locally"
-	@echo "install    - Install punsctl inside a Poetry virtual environment"
-	@echo "test       - Run all tests"
-	@echo "lint       - Linter"
-	@echo "bump_patch - Bump patch version"
-	@echo "bump_minor - Bump minor version"
-	@echo "bump_major - Bump major version"
+	@echo "lint - Linter"
 	@echo "------------------------------------"
 
-build:
-	poetry build
-
-install:
-	poetry install
-
-test:
-	poetry run pytest
-
 lint:
-	isort . --profile black
-	black .
-	flake8 .
-	bandit -r punsctl/
-
-bump_patch:
-	poetry version patch
-
-bump_minor:
-	poetry version minor
-
-bump_major:
-	poetry version major
+	uv run isort punsctl/ --profile black
+	uv run black punsctl/
+	uv run flake8 punsctl/
+	uv run bandit -r punsctl/

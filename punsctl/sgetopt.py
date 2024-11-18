@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2022 Aleksandar Buza <me@aleksandarbuza.com>
+# Copyright (c) 2022, 2024 Aleksandar Buza <tech@aleksandarbuza.com>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -31,17 +31,11 @@ def sgetopt(args: List[str], optstring: str) -> Any:
     def func(f):
         def wrapper():
             def is_opt(opt: str) -> bool:
-                """
-                Check if the argument is an option
-                """
                 if len(opt) == 2 and opt.startswith("-"):
                     return True
                 return False
 
             def req_arg(opt: str) -> bool:
-                """
-                Check if the option requires an argument
-                """
                 if opt.isalpha():
                     return optstring[optstring.find(opt) + 1] == ":"
                 return False
