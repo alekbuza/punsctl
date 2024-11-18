@@ -13,6 +13,7 @@ jobs:
       - run: uv python install $PYTHON_VERSION
         env:
           PYTHON_VERSION: "3.12"
+      - run: uv sync
       - run: uv build
       - run: uv publish --token $PYPI_TOKEN
         env:
