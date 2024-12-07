@@ -154,49 +154,45 @@ class Namespace(object):
                 logging.debug(f"debug: namespace: ignoring {source}")
                 continue
 
-            with Path(f"{self.symlink_path}/{source.name}") as target:
-                if target.exists():
-                    if target.is_symlink() and Path(readlink(target)) == source:
-                        logging.debug(
-                            f"debug: namespace: source {source} "
-                            f"link exists, skipping ..."
-                        )
+            target = Path(f"{self.symlink_path}/{source.name}")
+            if target.exists():
+                if target.is_symlink() and Path(readlink(target)) == source:
+                    logging.debug(
+                        f"debug: namespace: source {source} "
+                        f"link exists, skipping ..."
+                    )
 
-                        continue
+                    continue
 
-                    with target.with_name(f"{target.name}.{self.name}.bak") as backup:
-                        if not backup.exists():
-                            logging.debug(
-                                f"debug: namespace: rename {target} -> {backup}"
-                            )
-                            self.__rename_path(path=target, target=backup)
+                backup = target.with_name(f"{target.name}.{self.name}.bak")
+                if not backup.exists():
+                    logging.debug(f"debug: namespace: rename {target} -> {backup}")
+                    self.__rename_path(path=target, target=backup)
 
-                        else:
-                            continue
+                else:
+                    continue
 
-                if not target.is_symlink():
-                    logging.debug(f"debug: namespace: symlink {target} -> {source}")
-                    self.__symlink_path(target=target, source=source)
+            if not target.is_symlink():
+                logging.debug(f"debug: namespace: symlink {target} -> {source}")
+                self.__symlink_path(target=target, source=source)
 
     def deactivate(self) -> None:
         for source in self.__get_sources():
             logging.debug(f"debug: namespace: processing {source}")
 
-            with Path(f"{self.symlink_path}/{source.name}") as target:
-                if target.exists():
-                    if target.is_symlink() and Path(readlink(target)) == source:
-                        logging.debug(f"debug: namespace: unlink {target}")
-                        self.__unlink_path(symlink=target)
+            target = Path(f"{self.symlink_path}/{source.name}")
+            if target.exists():
+                if target.is_symlink() and Path(readlink(target)) == source:
+                    logging.debug(f"debug: namespace: unlink {target}")
+                    self.__unlink_path(symlink=target)
 
-                    with target.with_name(f"{target.name}.{self.name}.bak") as backup:
-                        if backup.exists() and not backup.is_symlink():
-                            if target.exists():
-                                continue
+                backup = target.with_name(f"{target.name}.{self.name}.bak")
+                if backup.exists() and not backup.is_symlink():
+                    if target.exists():
+                        continue
 
-                            logging.debug(
-                                f"debug: namespace: rename {target} -> {backup}"
-                            )
-                            self.__rename_path(path=backup, target=target)
+                    logging.debug(f"debug: namespace: rename {target} -> {backup}")
+                    self.__rename_path(path=backup, target=target)
 
         if self.current_ns_path.exists() and self.current_ns_path.is_symlink():
             if Path(readlink(self.current_ns_path)) == self.path:
