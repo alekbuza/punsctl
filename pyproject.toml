@@ -1,9 +1,8 @@
 [project]
 name = "punsctl"
-version = "0.2.4"
+version = "0.2.5"
 description = "POSIX User's Namespace Control"
 readme = {file = "README.md", content-type = "text/markdown"}
-license = {text = "ISC"}
 authors = [
   {name = "Aleksandar Buza", email = "tech@aleksandarbuza.com"},
 ]
@@ -11,6 +10,7 @@ requires-python = ">=3.9"
 dependencies = []
 
 classifiers = [
+    "License :: OSI Approved :: ISC License (ISCL)",
     "Environment :: Console",
     "Operating System :: POSIX",
     "Operating System :: Unix",
@@ -47,3 +47,7 @@ dev-dependencies = [
 
 [tool.isort]
 profile = "black"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
