@@ -3,8 +3,7 @@ name = "punsctl"
 version = "0.2.4"
 description = "POSIX User's Namespace Control"
 readme = {file = "README.md", content-type = "text/markdown"}
-license = "ISC"
-license-files = ["LICENSE"]
+license = {text = "ISC"}
 authors = [
   {name = "Aleksandar Buza", email = "tech@aleksandarbuza.com"},
 ]
