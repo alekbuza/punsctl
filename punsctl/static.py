@@ -15,8 +15,11 @@
 
 from pathlib import Path
 
-USAGE = """
-punsctl <options>
+from punsctl import __VERSION__
+
+USAGE = f"""
+punsctl {__VERSION__}
+Usage: punsctl <options>
 
 options:
     -h                Help menu
@@ -30,7 +33,7 @@ options:
     -d                Deactivate namespaces
 """
 
-SGETOPT_STRING = "hlvd:s:n:d:a:x:"
+SGETOPT_STRING = "hlvd:s:r:n:d:a:x:"
 
 DEFAULT_ROOTSPACE_MKDIR_MODE = 0o744
 DEFAULT_NAMESPACE_MKDIR_MODE = 0o744

@@ -1,0 +1,39 @@
+[settings]
+disable_backends = ["asdf"]
+python.uv_venv_auto = true
+
+[tasks.hygiene]
+description = "Code hygiene"
+run = ["uv run pre-commit run --all-files"]
+
+[tasks.install]
+depends = ["install-uv-sync", "install-pre-commit-hooks"]
+description = "Install dependencies"
+
+[tasks.install-uv-sync]
+description = "Install uv packages"
+run = ["uv sync"]
+
+[tasks.install-pre-commit-hooks]
+description = "Install pre-commit hooks"
+run = [
+    "uv run pre-commit install",
+    "uv run pre-commit install --hook-type pre-commit",
+    "uv run pre-commit install --hook-type commit-msg",
+]
+
+[tasks.autoupdate-pre-commit-hooks]
+description = "Auto update pre-commit hooks"
+run = ["uv run pre-commit autoupdate"]
+
+[tasks.ruff-check]
+description = "Check python code with ruff"
+run = [
+    "uv run ruff check --fix punsctl/"
+]
+
+[tools]
+usage = "2.0.5"
+python = "3.12"
+"pipx:uv" = "0.6.5"
+"aqua:cli/cli" = "2.68.1"

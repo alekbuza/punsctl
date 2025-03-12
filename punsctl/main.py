@@ -14,6 +14,7 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import logging
+import os
 import sys
 from pathlib import Path
 from typing import List, Tuple
@@ -43,11 +44,12 @@ def main(opts: List[Tuple], argv: List[str]) -> None:
         sys.exit(USAGE)
 
     opt_list = False
-    opt_root_path = DEFAULT_ROOTSPACE_PATH
-    opt_symlink_path = DEFAULT_SYMLINK_PATH
+
+    opt_root_path = os.environ.get("NS_ROOT", DEFAULT_ROOTSPACE_PATH)
+    opt_symlink_path = os.environ.get("NS_SYMLINK", DEFAULT_SYMLINK_PATH)
+    opt_activate = None
     opt_create = None
     opt_delete = None
-    opt_activate = None
     opt_deactivate = False
     opt_verbose = False
 

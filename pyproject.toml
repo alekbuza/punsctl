@@ -1,6 +1,6 @@
 [project]
 name = "punsctl"
-version = "0.2.5"
+version = "0.2.6"
 description = "POSIX User's Namespace Control"
 readme = {file = "README.md", content-type = "text/markdown"}
 authors = [
@@ -43,6 +43,8 @@ dev-dependencies = [
     "ruff>=0.7.3",
     "black>=24.10.0",
     "bandit>=1.8.0",
+    "pre-commit>=4.1.0",
+    "jedi-language-server>=0.43.1",
 ]
 
 [tool.isort]
